@@ -2156,3 +2156,521 @@ sections](./assets/supple-design-patterns.png "Patterns that contribute to a
 Supple Design") *Patterns that contribute to a supple design*
 
 ### Intention Revealing Interfaces
+
+If the interface doesn't tell the client developer what he needs to know in
+order to use the object effectively, he will have to dig into the internals to
+understand the details anyway.
+
+If a developer must consider the implementation of a component in order to use
+it, the value of encapsulation is lost. If someone other than the original
+developer must infer the purpose of an object or operation based on its
+implementation, that new developer may infer a purpose that the operation or
+class fulfills only by chance. If that was not the intent, the code may work for
+the moment, but the conceptual basis of the design will have been corrupted, and
+the two developers will be working at cross-purposes.
+
+All public elements of a design together make up its interface, and the name of
+each of those elements presents an opportunity to reveal the intention of the
+design.
+
+Name classes and operations to describe their effect an purpose, without
+reference to the means by which they do what they promise. This relieves the
+client developer of the need to understand the internals. These names should
+conform to the UBIQUITOUS LANGUAGE so that team members can quickly infer their
+meaning. **Write a test for a behavior before creating it, to force your
+thinking into client developer mode.**
+
+All the tricky mechanism should be encapsulated behind abstract interfaces that
+speak in terms of intentions, rather than means.
+
+In public interfaces of the domain, state relationships and rules but not how
+they are enforced; describe events and actions, but not how they are carried
+out. Pose the question, but don't present the means by which the answer shall be
+found.
+
+Entire subdomains can be carved off into separate modules and encapsulated
+behind INTENTION-REVEALING INTERFACES.
+
+Complex logic can be done safely in SIDE-EFFECT-FREE FUNCTIONS. Methods that
+change system state can be characterized with ASSERTIONS.
+
+### Side-Effect-Free Functions
+
+Operations can be divided into two categories:
+
+1. Commands (or modifiers): Operations that affect some change to the systems
+   and
+2. Queries: Obtain information from the system, possibly by simply accessing
+   data in a variable, possibly performing a calculation based on that data.
+
+Elements of a complex design interact in ways that are likely to produce
+unpredictability. The use of the term *side effect* underlines the inevitability
+of that interaction.
+
+Interactions of multiple rules or compositions of calculations become extremely
+difficult to predict. The developer calling an operation must understand its
+implementation and the implementation of all its delegations in order to
+anticipate the result. The usefulness of any abstraction of interfaces is
+limited if the developers are forced to pierce the veil. Without safely
+predictable abstractions, the developers must limit the combinatorial explosion,
+placing a low ceiling on the richness of behavior that is feasible to build.
+
+Operations that return results without producing side effects are called
+*functions*. Functions lower risk and are easier to test.
+
+You can't avoid commands in most software systems, but the problems can be
+mitigated in two ways:
+
+1. Segregate queries from commands completely. Ensure that the methods that
+   cause changes do not return domain data and are kept as simple as possible.
+   I.e. perform all queries and calculations in methods that cause no observable
+   side effects;
+2. There are often alternative models and designs that do not call for an
+   existing object to be modified at all: create and return a new VALUE OBJECT
+   representing the calculation unlike an ENTITY who's life cycle is carefully
+   regulated
+
+VALUE OBJECTS are immutable. So apart from the constructor, all of their
+operations are functions.
+
+Place as much of the logic of the program as possible into functions, operations
+that return results with no observable side effects. Strictly segregate commands
+(methods that result in modifications to observable state)into very simple
+operations that do not return domain information. Further control side effects
+by moving complex logic into VALUE OBJECTS when a concept fitting the
+responsibility presents itself.
+
+### Assertions
+
+ASSERTIONS make side effects explicit and easier to deal with.
+
+In a design where larger parts are built of smaller ones, a command may invoke
+other commands. Object interfaces do not restrict side effects so the developer
+using them will want to know which is which to anticipate the consequences. This
+will breach encapsulation, abstraction and polymorphism.
+
+When the side effects of operations are only defined implicitly by their
+implementation, designs with a lot of delegation become a tangle of cause and
+effect. The only way to understand a program is to trace execution trough
+branching paths. The value of encapsulation is lost. The necessity of tracing
+concrete execution defeats abstraction.
+
+We need a way of understanding the meaning of a design element and the
+consequences of executing an operation without delving into its internals.
+
+State post-conditions of operations and invariants of classes and AGGREGATES. If
+ASSERTIONS cannot be coded directly in your programming language, write
+automated unit tests for them. Write them into documentation or diagrams where
+it fits the style of the project's development process.
+
+Seek models with coherent sets of concepts, which lead a developer to infer the
+inteded ASSERTIONS, accelerating the learning curve and reducing the risk of
+contradictory code.
+
+The communicativeness of the INTENTION-REVEALING INTERFACES, combined with the
+predictability given by SIDE-EFFECT-FREE FUNCTIONS and ASSERTIONS, should make
+encapsulation and abstraction safe.
+
+The next ingredient in recombinable elements is effective decomposition.
+
+### Conceptual Contours
+
+When elements of a model or design are embedded in a monolithic construct, their
+functionality gets duplicated. The external interface doesn't say everything a
+client might care about. Their meaning is hard to understand, because different
+concepts are mixed together.
+
+On the other hand, breaking down classes ad methods can pointlessly complicate
+the client, forcing client objects to understand how tiny pieces fit together.
+Worse, a concept can be lost completely. Half of a uranium atom is not uranium.
+And of course, it isn't just grain size that counts, but just where the grain
+runs.
+
+There is a logical consistency deep in most domains. Because of this underlying
+consistency, when we find a model that resonates with some part of the domain,
+it is more likely to be consistent with other parts that we discover later.
+Sometimes the new discovery isn't easy for the model to adapt to, in which case
+we refactor to deeper insight, and hope to conform to the *next* discovery.
+
+Repeated refactoring eventually leads to suppleness. The CONCEPTUAL CONTOURS
+emerge as the code is adapted to newly understood concepts or requirements.
+
+With each decision, ask yourself, "Is this an expedient based on a particular
+set of relationships in the current model and code, or does it echo some contour
+of the underlying domain?"
+
+Each object should be a single complete concept, a "WHOLE VALUE".
+
+Decompose design elements (operations, interfaces, classes and AGGREGATES) into
+cohesive units, taking into consideration your intuition of the important
+divisions in the domain. Observe the axes of change and stability through
+successive refactorings and look for the underlying CONCEPTUAL CONTOURS that
+explain these shearing patterns. Align the model with the consistent aspects of
+the domain that make it a viable area of knowledge in the first place.
+
+The goal is a simple set of interfaces that combine logically to make sensible
+statements in the UBIQUITOUS LANGUAGE, and without the distraction and
+maintenance burden of irrelevant options.
+
+---
+
+INTENTION-REVEALING INTERFACES allow clients to present objects as units of
+meaning rather than just mechanisms. SIDE-EFFECT-FREE FUNCTIONS and ASSERTIONS
+make it safe to use those units and make complex combinations. The emergence of
+CONCEPTUAL CONTOURS stabilizes parts of the model and also makes the units more
+intuitive to use and combine.
+
+We can still run into conceptual overload when interdependencies force us to
+think about too many of these things at a time...
+
+### Standalone Classes
+
+Even within a MODULE, the difficulty of interpreting a design increases wildly
+as dependencies are added. This adds to mental overload, limiting the design
+complexity a developer can handle. Implicit concepts contribute to this load
+even more than explicit references.
+
+Every dependency is suspect until proven basic to the concept behind the object.
+This scrutiny starts with the factoring of the model concepts themselves. Then
+it requires attention to each individual association and operation. Model and
+design choices can chip away at dependencies--often to zero.
+
+Low coupling is fundamental to object design. When you can go all the way.
+Eliminate *all* other concepts from the picture. Then the class will be
+completely self-contained and can be studied and understood alone. Every such
+self-contained class significantly eases the burden of understanding a MODULE.
+
+The goal is not to eliminate all dependencies, but to eliminate all nonessential
+ones.
+
+Try to factor the most intricate computations into STANDALONE CLASSES, perhaps
+by mdeling VALUE OBJECTS held by the more connected classes.
+
+---
+
+Low coupling is a basic way to reduce conceptual overload. A STANDALONE CLASS is
+an extreme of low coupling.
+
+Eliminating dependencies should not mean dumbing down the model by arbitrarily
+reducing evertyhing to primitives.
+
+### Closure of Operations
+
+When a dependency is fundamental to the concept it isn't a bad thing.
+
+Most interesting objects end up doing things tha can't be characterized by
+primitives alone.
+
+Another common practice in refined designs is "CLOSURE OF OPERATIONS". That
+comes from mathematics, e.g. 1+1 = 2, the addition operation is closed under the
+set of real numbers (R + R will be contained in R). The property of closure
+tremendously simplifies the interpretation of an operation, and it is easy to
+think about chaining together or combining closed operations.
+
+Where it fits, define an operation whose return type is the same as the type of
+its argument(s). If the implementer has state that is used in the computaton.
+then the implementer is effectively and argument of the operation, so the
+argument(s) and return value should be of the same type as the implementer. Such
+an operation is closed under the set of instances of that type. A closed
+operation provides a high-level interface without introducing any dependency on
+other concepts.
+
+This pattern is most often applied to the operations of a VALUE OBJECT.
+
+### Declarative Design
+
+No matter how MODEL-DRIVEN our design is, we still end up writing procedures to
+produce the effect of the conceptual interactions.
+
+INTENTION-REVEALING INTERFACES and the other patterns in this chapter help, but
+they can never give conventional object-oriented programs formal rigor.
+
+These are some of the motivations behind *declarative design*: A way to write a
+program, or some part of a program, as a kind of executable specification.
+
+Generating a running program from a declaration of model properties is a kind of
+Holy Grail of MODEL-DRIVEN-DESIGN, but it does have its pitfalls in practice:
+
+- A declaration language not expressive enough to do everything needed, but a
+  framework that makes it very difficult to extend the software beyond the
+  automated portion
+- Code-generation techniques that cripple the iterative cycle by merging
+  generated code into handwritten code in a way that makes regeneration
+  destructive
+
+The unintended consequence of many attempts at declarative design is the
+dumbing-down of the model and application.
+
+> The greatest value I've seen delivered has been when a narrowly scoped
+> framework automates a particularly tedious and error-prone aspect of the
+> design , such as persitence and object-relational mapping. The best of these
+> unburden developers of drudge work while leaving them complete freedom to
+> design.
+
+### Domain-Specific Languages
+
+In this style, client code is written in a programming language tailored to a
+particular model.
+
+This can cause:
+
+1. Difficulty to refactor client code given changes in the model
+2. High learning to be able to create these languages
+
+
+### A Declarative Style of Design
+
+Once your design has INTENTION-REVEALING INTERFACES, SIDE-EFFECT-FREE FUNCTIONS,
+and ASSERTIONS, you are edging into declarative territory. Many of the benefits
+of declarative design are obtained once you have combinable elements that
+communicate their meaning, and have characterized or obvious effects, or no
+observable effects at all.
+
+### Extending SPECIFICATIONS in a Declarative Style
+
+SPECIFICAtION is an adaption of an established formalism, the predicate.
+Predicates have other useful properties that we can draw on, selectively.
+
+#### *Combining* SPECIFICATIONS Using Logical Operators
+
+```java
+public interface Specification {
+   boolean isSatisfiedBy(Object candidate);
+   Specification and(Specification other);
+   Specification or(Specification other);
+   Specification not();
+}
+```
+
+Using a Composite:
+
+```java
+public abstract class AbstractSpecification implements Specification {
+   public Specification and(Specification other) {
+      return new AndSpecification(this, other);
+   }
+
+   public Specification or(Specification other) {
+      return new OrSpecification(this, other);
+   }
+
+   public Specification not() {
+      return new NotSpecification(this);
+   }
+}
+
+public class AndSpecification extends AbstractSpecification {
+   Specification one;
+   Specification two;
+
+   public AndSpecification(Specification x, Specification y) {
+      one = x;
+      other = y;
+   }
+
+   public boolean isSatisfiedBy(Object candidate) {
+      return one.isSatisfiedBy(candidate) &&
+         other.isSatisfiedBy(candidate);
+   }
+}
+
+public class OrSpecification extends AbstractSpecification {
+   Specification one;
+   Specification two;
+
+   public AndSpecification(Specification x, Specification y) {
+      one = x;
+      other = y;
+   }
+
+   public boolean isSatisfiedBy(Object candidate) {
+      return one.isSatisfiedBy(candidate) ||
+         other.isSatisfiedBy(candidate);
+   }
+}
+
+public class AndSpecification extends AbstractSpecification {
+   Specification wrapped;
+
+   public AndSpecification(Specification x) {
+      wrapped = x;
+   }
+
+   public boolean isSatisfiedBy(Object candidate) {
+      return !one.isSatisfiedBy(candidate);
+   }
+}
+```
+
+There are situations where this may be inefficient. Other implementations
+options are possible that would minimize object count or boost speed. The
+important thing is a model that captures the key concepts of the domain, along
+with an implementation that is faithful to that model. That leaves a lot of room
+to solve performance problems.
+
+Using a pattern doesn't mean building features you don't need. They can be added
+later, as long as the concepts don't get muddled.
+
+#### Subsumptions
+
+```
+NewSpec implies OldSpec ?
+---
+NewSpec → OldSpec
+```
+
+Proving a logical implication in a general way is very difficult, but special
+cases can be easy.
+
+```java
+public class MinimumAgeSpecification {
+   int threshold;
+
+   public boolean isSatisfiedBy(Person candidate) {
+      return candidate.getAge() >= threshold;
+   }
+
+   public boolean subsumes(MinimumAgeSpecification other) {
+      return threshold >= other.getThreshold();
+   }
+}
+```
+
+Other way is using the AND operator, because `A AND B → A`.
+
+```java
+public boolean subsumes(Specification other) {
+   if (other instanceof CompositeSpecification) {
+      Collection otherLeaves =
+         (CompositeSpecification) other.leafSpecifications();
+         Iterator it = otherLeaves.iterator();
+         while (it.hasNext()) {
+            if (!leafSpecifications().contains(it.next()))
+               return false;
+         }
+   } else {
+      if (!leafSpecifications().contains(other))
+         return false;
+   }
+
+   return true;
+}
+```
+
+### Angles of attack
+
+This chapter has presented a raft of techniques to clarify the intent of code,
+to make the consequences of using it transparent, and to decouple model
+elements. Even so, this kind of design is difficult. You can't just look at an
+enormous system and say, "Let's make this supple." You have to choose targets.
+
+#### Carve Off Subdomains
+
+Some aspects of the system will suggest approaches to you, and they can be
+factored out and worked over.
+
+Examples:
+
+- You may see a part of the model that can be viewed as specialized math;
+  separate that
+- Your application enforces complex rules restricting state changes; pull this
+  out into a separate model or simple framework that lets you declare the rules.
+
+With each small step, the new module will be cleaner, but also the part left
+behind is smaller.
+
+It is more useful to make a big impact on one area, making a part of the design
+really supple, than yo spread your efforts thin.
+
+#### Draw on Established Formalisms, When You Can
+
+You can often use and adapt conceptual systems that are long established in your
+domain or others, some of which have been refined and distilled over centuries.
+
+---
+
+Supple Design has a profound effect on the ability of software to cope with
+change and complexity. It often hinges on quite detailed modeling and design
+decisions. The impact can go beyond a specific modeling and design problem.
+
+## Chapter Eleven: Applying Analysis Patterns
+
+When an experienced developer looking at a domain problem sees a familiar sort
+of responsibility or a familiar web of relationships, he or she can draw on the
+memory of how the problem was solved before. Some of these patterns have been
+documented and shared, allowing the rest of us to draw on the accumulated
+experience.
+
+These patterns let us cut through expensive trial and error to start with a
+model that is already expressive and implementable and addresses subtleties that
+might be costly to learn. From that starting point, we refactor and experiment.
+These are not out-of-the-box solutions.
+
+> Analysis patterns are groups of concepts that represent a common construction
+> in business modeling. It may be relevant to only one domain or it may span
+> many domains.
+
+What the name unfortunately does *not* convey is that there is significant
+discussion of implementation in these patterns, including some code. Fowler
+understands the pitfalls of analysis without thought for practical design. Here
+is an example where he is looking at the implactions of specific model choices
+on the maintenance of the system:
+
+> When we build a new [accounting] practice, we create a network of new
+> instances of the posting rule. We can do this without any recompilation or
+> rebuilding of the system, while it is still up and running. There will be
+> unavoidable occasions when we need a new subtype of posting rule, but these
+> will be rare.
+
+Experience avoids problems. Code that is tried and tested avoids problems.
+Analysis patterns at their best can carry that kind of experience from other
+projects combining model insights with extensive discussions of design
+directions and implementation consequences. To discuss model ideas out of that
+context makes them harder to apply and risks opening the deadly divide between
+analysis and design, which is antithetical to MODEL-DRIVEN-DESIGN.
+
+Obs.: The examples in this chapter are valuable and carry almost all of what the
+content of the chapter actually is.
+
+They attempt to show that:
+
+1. You need to adapt the Analysis patterns to your domain and use case;
+2. Reshow this to domain experts and re-evaluate;
+3. Infrastructure and code might make you have to change your model;
+4. The clarity of the new design might expose new problems.
+5. Sometimes you need to add the "Firing methods" of things that are done
+   event-based or in batches to your model. I.e. you may need a model driven
+   design for your batch scripts or consumers;
+
+### Analysis Patterns Are Knowledge to Draw On
+
+When you are lucky enough to have an analysis pattern, it hardly ever is the
+answer to your particular needs. Yet it offers valuable leads in your
+investigation, and it provides cleanly abstracted vocabulary. It should also
+give you guidance about implementation consequences that will save you pain down
+the road.
+
+There is one kind of change you should avoid. When you use a term from a
+well-known analysis pattern, take care to keep the basic concept it designates
+intact, however much the superficial form might change. There are two reasons
+for this:
+
+1. The pattern may embed understanding that will help you avoid problems;
+2. (more important) your UBIQUITOUS LANGUAGE is enhanced when it includes terms
+   that are widely understood or at least well explained. If your model
+   definitions change through the natural evolution of the model, take the
+   trouble to change the names too.
+
+Only a few of the Analysis Patterns available have captured the reasoning behind
+the choices and the consequences that follow, which are the most useful parts of
+an analysis pattern.
+
+This kind of reapplication of organized knowledge is completely different from
+attempts to reuse code through frameworks or components, except that either
+could provide the seed of an idea that is not obvious. A model, even a
+generalized framework, is a complete working whole, while an analysis is a kit
+of model fragments. Analysis patterns focus on the most critical and difficult
+decisions and illuminate alternatives and choices. They anticipate downstream
+consequences that are expensive if you have to discover them for yourself.
+
+## Chapter Eleven: Relating Design Patterns to the Model
